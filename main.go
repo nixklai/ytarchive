@@ -318,6 +318,7 @@ var (
 	separateAudio     bool
 	monitorChannel    bool
 	vp9               bool
+	fragMaxRetries    int
 
 	cancelled = false
 )
@@ -369,6 +370,7 @@ func init() {
 	cliFlags.IntVar(&retrySecs, "r", 0, "Seconds to wait between checking stream status.")
 	cliFlags.IntVar(&retrySecs, "retry-stream", 0, "Seconds to wait between checking stream status.")
 	cliFlags.UintVar(&threadCount, "threads", 1, "Number of download threads for each stream type.")
+	cliFlags.IntVar(&fragMaxRetries, "fragment-retries", 10, "Number of retries attempts before error is thrown.")
 
 	cliFlags.Func("video-url", "Googlevideo URL for the video stream.", func(s string) error {
 		var itag int
@@ -455,6 +457,10 @@ func run() int {
 
 	if threadCount > 1 {
 		info.Jobs = int(threadCount)
+	}
+
+	if fragMaxRetries {
+		info.fragMaxRetries = fragMaxRetries
 	}
 
 	if monitorChannel {
